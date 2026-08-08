@@ -19,17 +19,26 @@ load_dotenv()
 def _get_api_key(api_key: str | None = None) -> str:
     """
     Get Gemini API key.
+
     Priority:
     1. Function argument
-    2. .env file
+    2. Streamlit secrets
+    3. .env / environment variable
     """
 
     if api_key:
         return api_key.strip()
 
-    key = os.environ.get("GEMINI_API_KEY", "")
+    # Streamlit Cloud
+    try:
+        key = st.secrets.get("GEMINI_API_KEY", "")
+        if key:
+            return str(key).strip()
+    except Exception:
+        pass
 
-    return key.strip()
+    # Local .env fallback
+    return os.getenv("GEMINI_API_KEY", "").strip()
 
 
 def _build_prompt(query: str, notes_text: str) -> str:
