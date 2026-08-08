@@ -127,14 +127,13 @@ def _send_otp(email: str, purpose: str):
         db.commit()
         try:
             send_email(email, otp, purpose)
-        except Exception:
-            # Do not leave a usable code behind if delivery failed.
-            user.otp_hash = None
-            user.otp_purpose = None
-            user.otp_expires_at = None
-            user.otp_attempts = 0
-            db.commit()
-            return False, "Unable to send a code right now. Please try again later."
+        except Exception as e:
+         user.otp_hash = None
+         user.otp_purpose = None
+         user.otp_expires_at = None
+         user.otp_attempts = 0
+         db.commit()
+         return False, f"Email error: {e}"
         return True, generic
     except Exception:
         db.rollback()
